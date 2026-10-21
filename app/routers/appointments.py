@@ -47,6 +47,16 @@ def build_slots(schedule: DoctorSchedule):
     return slots
 
 
+def get_doctor_profile(user: User, db: Session) -> Doctor:
+    doctor = db.scalar(select(Doctor).where(Doctor.user_id == user.id))
+    if doctor is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doctor profile not found",
+        )
+    return doctor
+
+
 @router.get("/available", response_model=list[AvailableSlot])
 def available_slots(
     doctor_id: int,
@@ -142,6 +152,24 @@ def my_appointments(
     return db.scalars(query).all()
 
 
+@router.get("/doctor/me", response_model=list[AppointmentRead])
+def doctor_appointments(
+    appointment_date: date | None = None,
+    db: Session = Depends(get_db),
+    doctor_user: User = Depends(require_roles(UserRole.DOCTOR)),
+):
+    doctor = get_doctor_profile(doctor_user, db)
+
+    query = select(Appointment).where(
+        Appointment.doctor_id == doctor.id,
+        Appointment.status == AppointmentStatus.CONFIRMED,
+    )
+    if appointment_date is not None:
+        query = query.where(Appointment.appointment_date == appointment_date)
+    query = query.order_by(Appointment.appointment_date, Appointment.start_time)
+    return db.scalars(query).all()
+
+
 @router.post("/{appointment_id}/cancel", response_model=AppointmentRead)
 def cancel_appointment(
     appointment_id: int,
@@ -167,33 +195,6 @@ def cancel_appointment(
     db.refresh(appointment)
     return appointment
 
-def get_doctor_profile(user: User, db: Session) -> Doctor:
-    doctor = db.scalar(select(Doctor).where(Doctor.user_id == user.id))
-    if doctor is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Doctor profile not found",
-        )
-    return doctor
-
-
-@router.get("/doctor/me", response_model=list[AppointmentRead])
-def doctor_appointments(
-    appointment_date: date | None = None,
-    db: Session = Depends(get_db),
-    doctor_user: User = Depends(require_roles(UserRole.DOCTOR)),
-):
-    doctor = get_doctor_profile(doctor_user, db)
-
-    query = select(Appointment).where(
-        Appointment.doctor_id == doctor.id,
-        Appointment.status == AppointmentStatus.CONFIRMED,
-    )
-    if appointment_date is not None:
-        query = query.where(Appointment.appointment_date == appointment_date)
-    query = query.order_by(Appointment.appointment_date, Appointment.start_time)
-    return db.scalars(query).all()
-
 
 @router.post("/{appointment_id}/complete", response_model=AppointmentRead)
 def complete_appointment(
@@ -214,6 +215,12 @@ def complete_appointment(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Only confirmed appointments can be completed",
+        )
+
+    if datetime.combine(appointment.appointment_date, appointment.start_time) > datetime.now():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot complete an appointment before its start time",
         )
 
     appointment.status = AppointmentStatus.COMPLETED
