@@ -166,3 +166,57 @@ def cancel_appointment(
     db.commit()
     db.refresh(appointment)
     return appointment
+
+def get_doctor_profile(user: User, db: Session) -> Doctor:
+    doctor = db.scalar(select(Doctor).where(Doctor.user_id == user.id))
+    if doctor is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Doctor profile not found",
+        )
+    return doctor
+
+
+@router.get("/doctor/me", response_model=list[AppointmentRead])
+def doctor_appointments(
+    appointment_date: date | None = None,
+    db: Session = Depends(get_db),
+    doctor_user: User = Depends(require_roles(UserRole.DOCTOR)),
+):
+    doctor = get_doctor_profile(doctor_user, db)
+
+    query = select(Appointment).where(
+        Appointment.doctor_id == doctor.id,
+        Appointment.status == AppointmentStatus.CONFIRMED,
+    )
+    if appointment_date is not None:
+        query = query.where(Appointment.appointment_date == appointment_date)
+    query = query.order_by(Appointment.appointment_date, Appointment.start_time)
+    return db.scalars(query).all()
+
+
+@router.post("/{appointment_id}/complete", response_model=AppointmentRead)
+def complete_appointment(
+    appointment_id: int,
+    db: Session = Depends(get_db),
+    doctor_user: User = Depends(require_roles(UserRole.DOCTOR)),
+):
+    doctor = get_doctor_profile(doctor_user, db)
+
+    appointment = db.get(Appointment, appointment_id)
+    if appointment is None or appointment.doctor_id != doctor.id:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Appointment not found",
+        )
+
+    if appointment.status != AppointmentStatus.CONFIRMED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Only confirmed appointments can be completed",
+        )
+
+    appointment.status = AppointmentStatus.COMPLETED
+    db.commit()
+    db.refresh(appointment)
+    return appointment
