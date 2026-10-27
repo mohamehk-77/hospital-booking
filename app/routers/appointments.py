@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -139,6 +139,36 @@ def available_slots(
     return result
 
 
+@router.get("/", response_model=list[AppointmentRead])
+def list_all_appointments(
+    appointment_date: date | None = None,
+    doctor_id: int | None = None,
+    status_filter: AppointmentStatus | None = Query(default=None, alias="status"),
+    skip: int = Query(default=0, ge=0),
+    limit: int = Query(default=50, ge=1, le=100),
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(UserRole.ADMIN)),
+):
+    query = select(Appointment)
+    if appointment_date is not None:
+        query = query.where(Appointment.appointment_date == appointment_date)
+    if doctor_id is not None:
+        query = query.where(Appointment.doctor_id == doctor_id)
+    if status_filter is not None:
+        query = query.where(Appointment.status == status_filter)
+
+    query = (
+        query.order_by(
+            Appointment.appointment_date,
+            Appointment.start_time,
+            Appointment.id,
+        )
+        .offset(skip)
+        .limit(limit)
+    )
+    return db.scalars(query).all()
+
+
 @router.post("/", response_model=AppointmentRead, status_code=status.HTTP_201_CREATED)
 def book_appointment(
     data: AppointmentCreate,
@@ -223,6 +253,7 @@ def cancel_appointment(
     db.commit()
     db.refresh(appointment)
     return appointment
+
 
 @router.post("/{appointment_id}/complete", response_model=AppointmentRead)
 def complete_appointment(
