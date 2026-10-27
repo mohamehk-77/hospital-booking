@@ -134,15 +134,33 @@ function jsToPythonWeekday(jsDay) {
   return (jsDay + 6) % 7;
 }
 
-function nextWorkingDate(weekdays) {
-  if (!weekdays.length) return null;
-  const start = new Date();
+function pickBookingDate(schedules) {
+  if (!schedules.length) return null;
+
+  const now = new Date();
+  const todayWeekday = jsToPythonWeekday(now.getDay());
+  const todayRows = schedules.filter((row) => row.weekday === todayWeekday);
+
+  if (todayRows.length) {
+    const latestEnd = todayRows
+      .map((row) => row.end_time)
+      .sort()
+      .pop();
+    const [hours, minutes] = latestEnd.split(":").map(Number);
+    const end = new Date(now);
+    end.setHours(hours, minutes, 0, 0);
+    if (now < end) {
+      return isoDate(now);
+    }
+  }
+
+  const start = new Date(now);
   start.setHours(12, 0, 0, 0);
   start.setDate(start.getDate() + 1);
   for (let offset = 0; offset < 21; offset += 1) {
     const candidate = new Date(start);
     candidate.setDate(start.getDate() + offset);
-    if (weekdays.includes(jsToPythonWeekday(candidate.getDay()))) {
+    if (schedules.some((row) => row.weekday === jsToPythonWeekday(candidate.getDay()))) {
       return isoDate(candidate);
     }
   }
@@ -319,7 +337,7 @@ async function onDoctorChange() {
     const names = [...new Set(schedules.map((row) => WEEKDAY_NAMES[row.weekday]))].join("، ");
     els.days.textContent = `أيام العمل: ${names}`;
 
-    const nextDate = nextWorkingDate(schedules.map((row) => row.weekday));
+    const nextDate = pickBookingDate(schedules);
     if (nextDate) {
       els.date.value = nextDate;
       await loadSlots();

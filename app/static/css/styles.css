@@ -617,7 +617,7 @@ svg {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1px;
-  background: var(--line);
+  background: var(--paper);
   border: 1px solid var(--line);
 }
 
@@ -628,6 +628,8 @@ svg {
   gap: 28px;
   padding: clamp(24px, 3vw, 36px);
   background: var(--paper);
+  outline: 1px solid var(--line);
+  outline-offset: -1px;
   transition: background 0.25s ease;
 }
 
