@@ -34,6 +34,7 @@ class Appointment(Base):
             "start_time",
             unique=True,
             postgresql_where=text("status = 'confirmed'"),
+            sqlite_where=text("status = 'confirmed'"),
         ),
     )
 
