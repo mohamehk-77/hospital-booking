@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}الأقسام | مستشفى راضى التخصصى{% endblock %}
+{% block description %}تخصصات مستشفى راضى التخصصى وأطباء كل قسم.{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow"><span></span> الأقسام</p>
+    <h1>تخصصك يبدأ<br><em>من القسم الصح.</em></h1>
+    <p class="page-hero__lede">
+      كل قسم بفريقه ومواعيده، وكل الأطباء في مكان واحد. اختار القسم وشوف
+      الأطباء المتاحين للحجز.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="departments-grid" id="departments-grid" aria-live="polite">
+      <p class="loading-line">جارٍ تحميل الأقسام…</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

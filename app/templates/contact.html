@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}تواصل معنا | مستشفى راضى التخصصى{% endblock %}
+{% block description %}بيانات التواصل والعنوان ومواعيد مستشفى راضى التخصصى.{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow"><span></span> تواصل</p>
+    <h1>إحنا قريبين<br><em>منك.</em></h1>
+    <p class="page-hero__lede">
+      للحجز والاستفسار، أو لو محتاج توصل لنا — كل البيانات هنا.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container contact-grid">
+    <article class="contact-card">
+      <p class="contact-card__label">الحجز والاستعلام</p>
+      <p class="contact-card__main" dir="ltr">01284715157</p>
+      <p class="contact-card__main" dir="ltr">040 4477348</p>
+      <p class="contact-card__note">طوال أيام الأسبوع</p>
+    </article>
+    <article class="contact-card">
+      <p class="contact-card__label">العنوان</p>
+      <p class="contact-card__main contact-card__main--text">
+        90 شارع بورسعيد، بجوار البنك الأهلي المصري، السنطة — الغربية
+      </p>
+      <a class="text-link" href="https://maps.google.com/?q=Rady+Specialized+Hospital+Santa+Gharbia" target="_blank" rel="noopener">افتح على الخريطة <span>←</span></a>
+    </article>
+    <article class="contact-card">
+      <p class="contact-card__label">الطوارئ</p>
+      <p class="contact-card__main">24 ساعة</p>
+      <p class="contact-card__note">طوال أيام الأسبوع</p>
+    </article>
+  </div>
+</section>
+{% endblock %}

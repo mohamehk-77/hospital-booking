@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}الأطباء | مستشفى راضى التخصصى{% endblock %}
+{% block description %}أطباء مستشفى راضى التخصصى وتخصصاتهم ومواعيدهم.{% endblock %}
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <p class="eyebrow"><span></span> الأطباء</p>
+    <h1>اختار طبيبك<br><em>بثقة.</em></h1>
+    <p class="page-hero__lede">
+      فريق من الأطباء في التخصصات المختلفة، وكل صفحة طبيب بتوضح تخصصه ومواعيده
+      المتاحة للحجز.
+    </p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="doctors__grid" id="doctors-grid" aria-live="polite">
+      <p class="doctors__empty">جارٍ تحميل الأطباء…</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

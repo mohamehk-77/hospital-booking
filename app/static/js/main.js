@@ -1,3 +1,5 @@
+document.documentElement.classList.add("js");
+
 const TOKEN_KEY = "rady_token";
 const USER_KEY = "rady_user";
 
@@ -244,7 +246,34 @@ function renderDoctors(doctors, departments) {
             <h3>${escapeHtml(doctor.full_name)}</h3>
             <p class="doctor-card__spec">${escapeHtml(doctor.specialization)}</p>
             ${doctor.bio ? `<p class="doctor-card__bio">${escapeHtml(doctor.bio)}</p>` : ""}
-            <a class="text-link" href="#booking" data-book-doctor="${doctor.id}">احجز مع الدكتور <span>←</span></a>
+            <a class="text-link" href="/booking?doctor=${doctor.id}">احجز مع الدكتور <span>←</span></a>
+          </div>
+        </article>`;
+    })
+    .join("");
+}
+
+
+function renderDepartmentsPage(departments, doctors) {
+  const grid = document.getElementById("departments-grid");
+  if (!grid) return;
+
+  if (!departments.length) {
+    grid.innerHTML = '<p class="loading-line">لا توجد أقسام مضافة بعد.</p>';
+    return;
+  }
+
+  grid.innerHTML = departments
+    .map((department, index) => {
+      const count = doctors.filter((doctor) => doctor.department_id === department.id).length;
+      return `
+        <article class="department-card">
+          <span class="department-card__num">${String(index + 1).padStart(2, "0")}</span>
+          <h2>${escapeHtml(department.name)}</h2>
+          ${department.description ? `<p>${escapeHtml(department.description)}</p>` : ""}
+          <div class="department-card__meta">
+            <span>${count} ${count === 1 ? "طبيب" : "أطباء"}</span>
+            <a class="text-link" href="/doctors?department=${department.id}">اعرض الأطباء <span>←</span></a>
           </div>
         </article>`;
     })
@@ -635,9 +664,17 @@ async function loadContent() {
     state.departments = departments;
     state.doctors = doctors;
     renderDepartments(departments);
-    renderDoctors(doctors, departments);
+    renderDepartmentsPage(departments, doctors);
+
+    const departmentParam = new URLSearchParams(window.location.search).get("department");
+    const visibleDoctors = departmentParam
+      ? doctors.filter((doctor) => doctor.department_id === Number(departmentParam))
+      : doctors;
+    renderDoctors(visibleDoctors, departments);
+
     fillDepartmentOptions(departments);
     fillDoctorOptions();
+    setupReveals();
   } catch (error) {
     console.error(error);
     const grid = document.getElementById("doctors-grid");
@@ -734,21 +771,6 @@ function setupBookingEvents() {
     }
   });
 
-  document.addEventListener("click", (event) => {
-    const link = event.target.closest("[data-book-doctor]");
-    if (!link) return;
-    event.preventDefault();
-
-    const doctorId = Number(link.dataset.bookDoctor);
-    if (!state.doctors.some((doctor) => doctor.id === doctorId)) return;
-
-    els.department.value = "";
-    fillDoctorOptions();
-    els.doctor.value = String(doctorId);
-    onDoctorChange();
-    document.getElementById("booking").scrollIntoView({ behavior: "smooth", block: "start" });
-  });
-
   els.modal.addEventListener("click", (event) => {
     if (event.target.closest("[data-close-modal]")) {
       closeModal();
@@ -771,12 +793,64 @@ function setupBookingEvents() {
   document.getElementById("book-another").addEventListener("click", resetBookingForm);
 }
 
+
+let revealObserver = null;
+
+function setupReveals() {
+  const elements = document.querySelectorAll(
+    "section, .doctor-card, .department-card, .about__text, .contact-card, .booking-card, .page-hero h1, .page-hero__lede",
+  );
+
+  elements.forEach((element, index) => {
+    if (element.dataset.reveal === "done") return;
+    element.dataset.reveal = "done";
+
+    if (!("IntersectionObserver" in window)) {
+      element.classList.add("is-visible");
+      return;
+    }
+
+    element.style.transitionDelay = `${Math.min(index % 4, 3) * 60}ms`;
+
+    if (!revealObserver) {
+      revealObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.08, rootMargin: "0px 0px -40px 0px" },
+      );
+    }
+
+    revealObserver.observe(element);
+  });
+}
+
 async function init() {
-  setupBookingEvents();
+  if (els.form) {
+    setupBookingEvents();
+  }
+
   await loadContent();
   await restoreSession();
   renderAuth();
   updateSubmit();
+
+  if (els.form) {
+    const doctorParam = new URLSearchParams(window.location.search).get("doctor");
+    if (
+      doctorParam &&
+      state.doctors.some((doctor) => doctor.id === Number(doctorParam))
+    ) {
+      els.doctor.value = doctorParam;
+      onDoctorChange();
+    }
+  }
+
+  setupReveals();
 }
 
 init();
