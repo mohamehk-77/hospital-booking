@@ -43,6 +43,7 @@
       <nav class="nav" aria-label="التنقل الرئيسي">
         <a href="#about">عن المستشفى</a>
         <a href="#departments">التخصصات</a>
+        <a href="#doctors">الأطباء</a>
         <a href="#contact">تواصل</a>
       </nav>
 
@@ -117,7 +118,7 @@
           <p class="eyebrow"><span></span> التخصصات</p>
           <p class="specialties__note">مسارات طبية متعددة، وملف واحد يربطها كلها.</p>
         </div>
-        <ul class="specialties__list">
+        <ul class="specialties__list" id="specialties-list">
           <li><span>01</span> القلب والأوعية الدموية</li>
           <li><span>02</span> العظام والمفاصل</li>
           <li><span>03</span> الأطفال وحديثو الولادة</li>
@@ -127,6 +128,23 @@
           <li><span>07</span> الأنف والأذن والحنجرة</li>
           <li><span>08</span> الجلدية والتجميل</li>
         </ul>
+      </div>
+    </section>
+
+    <section class="doctors" id="doctors">
+      <div class="container">
+        <div class="doctors__head">
+          <div>
+            <p class="eyebrow"><span></span> الأطباء</p>
+            <h2>فريق يقرأ ملفك<br><em>قبل أن يدخل الغرفة.</em></h2>
+          </div>
+          <p class="doctors__note">
+            استشاريون في التخصصات الدقيقة، وملف واحد يتابع معك من أول زيارة.
+          </p>
+        </div>
+        <div class="doctors__grid" id="doctors-grid" aria-live="polite">
+          <p class="doctors__empty">جارٍ تحميل الأطباء…</p>
+        </div>
       </div>
     </section>
 
