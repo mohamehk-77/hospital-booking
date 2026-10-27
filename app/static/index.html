@@ -14,7 +14,7 @@
 
   <div class="topbar">
     <div class="container topbar__inner">
-      <p class="topbar__note">الاستقبال والطوارئ على مدار الساعة</p>
+      <p class="topbar__note">الطوارئ 24/7 — <a href="tel:01284715157" dir="ltr">01284715157</a></p>
       <div class="topbar__links">
         <a href="#departments">التخصصات</a>
         <span class="topbar__divider"></span>
@@ -47,7 +47,7 @@
         <a href="#contact">تواصل</a>
       </nav>
 
-      <a class="btn btn--gold btn--sm" href="#contact">احجز موعد</a>
+      <a class="btn btn--gold btn--sm" href="#booking">احجز موعد</a>
     </div>
   </header>
 
@@ -62,7 +62,7 @@
             ومواعيد تُحترم. لأن الرعاية الجيدة تبدأ بالتفاصيل.
           </p>
           <div class="hero__actions">
-            <a class="btn btn--gold" href="#contact">احجز موعدك</a>
+            <a class="btn btn--gold" href="#booking">احجز موعدك</a>
             <a class="btn btn--ghost" href="#departments">استكشف التخصصات</a>
           </div>
           <dl class="hero__facts">
@@ -167,6 +167,104 @@
         </div>
       </div>
     </section>
+
+    <section class="booking" id="booking">
+      <div class="container booking__grid">
+        <div class="booking__intro">
+          <p class="eyebrow"><span></span> الحجز</p>
+          <h2>موعدك في<br><em>ثلاث خطوات.</em></h2>
+          <p class="booking__lede">
+            اختار الطبيب واليوم، وسيب الباقي علينا. الحجز مؤكد فورًا، وتقدر تلغيه
+            من «حجوزاتي» في أي وقت.
+          </p>
+          <ol class="booking__steps">
+            <li>
+              <span>01</span>
+              <div><strong>اختار الدكتور</strong><small>حسب التخصص أو القسم.</small></div>
+            </li>
+            <li>
+              <span>02</span>
+              <div><strong>اختار الميعاد</strong><small>المواعيد المتاحة فقط.</small></div>
+            </li>
+            <li>
+              <span>03</span>
+              <div><strong>أكد الحجز</strong><small>بتسجيل دخول سريع.</small></div>
+            </li>
+          </ol>
+          <p class="booking__help">
+            محتاج مساعدة؟ <a href="tel:01284715157" dir="ltr">01284715157</a>
+          </p>
+        </div>
+
+        <div class="booking-card">
+          <form id="booking-form" novalidate>
+            <div class="booking-card__row">
+              <label class="field">
+                <span>القسم</span>
+                <select id="booking-department">
+                  <option value="">كل التخصصات</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>الدكتور</span>
+                <select id="booking-doctor" required>
+                  <option value="">اختار الدكتور</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>اليوم</span>
+              <input type="date" id="booking-date" required>
+              <small class="field__hint" id="booking-days"></small>
+            </label>
+
+            <div class="field">
+              <span>المواعيد المتاحة</span>
+              <div class="slots" id="booking-slots">
+                <p class="slots__empty">اختار الدكتور واليوم الأول.</p>
+              </div>
+            </div>
+
+            <label class="field">
+              <span>ملاحظات <em>(اختياري)</em></span>
+              <textarea id="booking-notes" rows="2" maxlength="500"
+                        placeholder="أي تفاصيل تحب الدكتور يعرفها؟"></textarea>
+            </label>
+
+            <div class="auth" id="auth-box"></div>
+
+            <button class="btn btn--gold booking-card__submit" type="submit"
+                    id="booking-submit" disabled>تأكيد الحجز</button>
+            <p class="form-status" id="booking-status" role="status"></p>
+          </form>
+
+          <div class="booking-success" id="booking-success" hidden>
+            <span class="booking-success__mark">✓</span>
+            <h3>تم تأكيد الحجز</h3>
+            <p id="booking-success-text"></p>
+            <div class="booking-success__actions">
+              <button class="btn btn--gold" type="button" id="view-appointments">حجوزاتي</button>
+              <button class="btn btn--ghost" type="button" id="book-another">حجز آخر</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="modal" id="appointments-modal" hidden>
+      <div class="modal__backdrop" data-close-modal></div>
+      <div class="modal__panel" role="dialog" aria-modal="true"
+           aria-labelledby="appointments-title">
+        <div class="modal__head">
+          <h3 id="appointments-title">حجوزاتي</h3>
+          <button class="modal__close" type="button" data-close-modal
+                  aria-label="إغلاق">×</button>
+        </div>
+        <div class="modal__body" id="appointments-list"></div>
+      </div>
+    </div>
   </main>
 
   <footer class="site-footer" id="contact">
@@ -178,11 +276,16 @@
         </div>
         <div>
           <p class="site-footer__label">الحجز والاستعلام</p>
-          <p>عبر الاستقبال — طوال الأسبوع</p>
+          <p><a href="tel:01284715157" dir="ltr">01284715157</a></p>
+          <p><a href="tel:0404477348" dir="ltr">040 4477348</a></p>
+        </div>
+        <div>
+          <p class="site-footer__label">العنوان</p>
+          <p>90 شارع بورسعيد، بجوار البنك الأهلي المصري، السنطة — الغربية</p>
         </div>
         <div>
           <p class="site-footer__label">الطوارئ</p>
-          <p>على مدار الساعة</p>
+          <p>24 ساعة — طوال الأسبوع</p>
         </div>
       </div>
       <div class="site-footer__bottom">
