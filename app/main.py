@@ -3,7 +3,15 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.routers import appointments, auth, departments, doctors, schedules
+from app.routers import (
+    appointments,
+    auth,
+    departments,
+    doctors,
+    patients,
+    schedules,
+    staff,
+)
 
 app = FastAPI(
     title="Hospital Booking API",
@@ -15,6 +23,8 @@ app.include_router(departments.router)
 app.include_router(doctors.router)
 app.include_router(schedules.router)
 app.include_router(appointments.router)
+app.include_router(staff.router)
+app.include_router(patients.router)
 
 
 @app.get("/health")

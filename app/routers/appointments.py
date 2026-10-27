@@ -11,7 +11,12 @@ from app.models.appointment import Appointment, AppointmentStatus
 from app.models.doctor import Doctor
 from app.models.doctor_schedule import DoctorSchedule
 from app.models.user import User, UserRole
-from app.schemas.appointment import AppointmentCreate, AppointmentRead, AvailableSlot
+from app.schemas.appointment import (
+    AppointmentCreate,
+    AppointmentRead,
+    AvailableSlot,
+    StaffAppointmentCreate,
+)
 
 router = APIRouter(prefix="/appointments", tags=["Appointments"])
 
@@ -57,6 +62,50 @@ def get_doctor_profile(user: User, db: Session) -> Doctor:
     return doctor
 
 
+def create_booking(patient_id: int, data: AppointmentCreate, db: Session) -> Appointment:
+    get_active_doctor(data.doctor_id, db)
+
+    if datetime.combine(data.appointment_date, data.start_time) <= datetime.now():
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot book a time in the past",
+        )
+
+    schedule = get_schedule(data.doctor_id, data.appointment_date, db)
+    if schedule is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Doctor does not work on this day",
+        )
+
+    slot = next((s for s in build_slots(schedule) if s[0] == data.start_time), None)
+    if slot is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid time slot for this doctor",
+        )
+
+    appointment = Appointment(
+        patient_id=patient_id,
+        doctor_id=data.doctor_id,
+        appointment_date=data.appointment_date,
+        start_time=slot[0],
+        end_time=slot[1],
+        notes=data.notes,
+    )
+    db.add(appointment)
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This slot is already booked",
+        )
+    db.refresh(appointment)
+    return appointment
+
+
 @router.get("/available", response_model=list[AvailableSlot])
 def available_slots(
     doctor_id: int,
@@ -96,47 +145,26 @@ def book_appointment(
     db: Session = Depends(get_db),
     patient: User = Depends(require_roles(UserRole.PATIENT)),
 ):
-    get_active_doctor(data.doctor_id, db)
+    return create_booking(patient.id, data, db)
 
-    if datetime.combine(data.appointment_date, data.start_time) <= datetime.now():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Cannot book a time in the past",
-        )
 
-    schedule = get_schedule(data.doctor_id, data.appointment_date, db)
-    if schedule is None:
+@router.post(
+    "/for-patient",
+    response_model=AppointmentRead,
+    status_code=status.HTTP_201_CREATED,
+)
+def book_for_patient(
+    data: StaffAppointmentCreate,
+    db: Session = Depends(get_db),
+    _: User = Depends(require_roles(UserRole.RECEPTIONIST, UserRole.ADMIN)),
+):
+    patient = db.get(User, data.patient_id)
+    if patient is None or patient.role != UserRole.PATIENT or not patient.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Doctor does not work on this day",
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Patient not found",
         )
-
-    slot = next((s for s in build_slots(schedule) if s[0] == data.start_time), None)
-    if slot is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid time slot for this doctor",
-        )
-
-    appointment = Appointment(
-        patient_id=patient.id,
-        doctor_id=data.doctor_id,
-        appointment_date=data.appointment_date,
-        start_time=slot[0],
-        end_time=slot[1],
-        notes=data.notes,
-    )
-    db.add(appointment)
-    try:
-        db.commit()
-    except IntegrityError:
-        db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="This slot is already booked",
-        )
-    db.refresh(appointment)
-    return appointment
+    return create_booking(patient.id, data, db)
 
 
 @router.get("/my", response_model=list[AppointmentRead])
@@ -178,7 +206,8 @@ def cancel_appointment(
 ):
     appointment = db.get(Appointment, appointment_id)
     is_owner = appointment is not None and appointment.patient_id == current_user.id
-    if appointment is None or not (is_owner or current_user.role == UserRole.ADMIN):
+    is_staff = current_user.role in (UserRole.ADMIN, UserRole.RECEPTIONIST)
+    if appointment is None or not (is_owner or is_staff):
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Appointment not found",
@@ -194,7 +223,6 @@ def cancel_appointment(
     db.commit()
     db.refresh(appointment)
     return appointment
-
 
 @router.post("/{appointment_id}/complete", response_model=AppointmentRead)
 def complete_appointment(

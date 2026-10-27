@@ -12,6 +12,10 @@ class AppointmentCreate(BaseModel):
     notes: str | None = Field(default=None, max_length=500)
 
 
+class StaffAppointmentCreate(AppointmentCreate):
+    patient_id: int
+
+
 class AppointmentRead(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
