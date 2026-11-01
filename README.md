@@ -2,13 +2,13 @@
 
 A hospital appointment booking platform built with FastAPI, SQLAlchemy, and PostgreSQL. The system provides role-based workflows for patients, doctors, receptionists, and administrators, along with a web interface and RESTful API.
 
-"Python" (https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
-"FastAPI" (https://img.shields.io/badge/FastAPI-Framework-009688?logo=fastapi&logoColor=white)
-"PostgreSQL" (https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)
-"SQLAlchemy" (https://img.shields.io/badge/SQLAlchemy-ORM-D71F00)
-"Docker" (https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker&logoColor=white)
-
----
+<p align="left">
+  <img src="https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white" alt="Python 3.13" />
+  <img src="https://img.shields.io/badge/FastAPI-Framework-009688?logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/SQLAlchemy-ORM-D71F00" alt="SQLAlchemy" />
+  <img src="https://img.shields.io/badge/Docker-Supported-2496ED?logo=docker&logoColor=white" alt="Docker" />
+</p>---
 
 📌 Table of Contents
 
@@ -27,7 +27,9 @@ A hospital appointment booking platform built with FastAPI, SQLAlchemy, and Post
 - "Security" (#-security)
 - "Project Structure" (#-project-structure)
 - "Future Improvements" (#-future-improvements)
+- "Screenshots & Demo" (#-screenshots--demo)
 - "License" (#-license)
+- "Author" (#-author)
 
 ---
 
@@ -301,9 +303,11 @@ pip install -r requirements-dev.txt
 
 Copy the example environment file:
 
+Linux / macOS:
+
 cp .env.example .env
 
-On Windows, you can use:
+Windows:
 
 Copy-Item .env.example .env
 
@@ -319,11 +323,8 @@ uvicorn app.main:app --reload
 
 The application will be available at:
 
-Web Application:
-http://127.0.0.1:8000
-
-API Documentation:
-http://127.0.0.1:8000/docs
+- Web Application: http://127.0.0.1:8000
+- API Documentation: http://127.0.0.1:8000/docs
 
 ---
 
@@ -334,7 +335,7 @@ Variable| Description
 "SECRET_KEY"| Secret key used for JWT signing
 "ENVIRONMENT"| Application environment ("development" or "production")
 
-Example configuration:
+Example Configuration
 
 DATABASE_URL=postgresql://postgres:YOUR_PASSWORD@localhost:5432/hospital_db
 
@@ -415,7 +416,7 @@ The repository includes a "render.yaml" Blueprint configuration for:
 
 Connect the GitHub repository to Render and deploy using the Blueprint configuration.
 
-Additional deployment instructions:
+Additional Deployment Guides
 
 - "DEPLOY.md" (DEPLOY.md)
 - "DEPLOY-ORACLE.md" (DEPLOY-ORACLE.md)
@@ -513,9 +514,8 @@ Mohamed Abdalwahed
 
 Backend Developer | Healthcare Professional
 
-GitHub: "@mohamehk-77" (https://github.com/mohamehk-77)
-
-Project Repository: "Hospital Booking System" (https://github.com/mohamehk-77/hospital-booking)
+- GitHub: "@mohamehk-77" (https://github.com/mohamehk-77)
+- Project Repository: "Hospital Booking System" (https://github.com/mohamehk-77/hospital-booking)
 
 ---
 
