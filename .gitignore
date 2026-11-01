@@ -12,3 +12,6 @@ __pycache__/
 
 # Editor
 .vscode/
+
+# Production secrets
+.env.prod

@@ -10,3 +10,4 @@ tests
 *.db
 .pgtest
 logs
+.env.prod

@@ -58,3 +58,7 @@ docker compose exec app python -m scripts.create_admin
 - `ENVIRONMENT=production` (بيقفل `/docs` و`/redoc`).
 - باكاب دوري لقاعدة البيانات.
 - راجع صلاحيات الحسابات التجريبية واحذف اللي مش محتاجه.
+
+## نشر مجاني دائم على Oracle
+
+راجع [DEPLOY-ORACLE.md](DEPLOY-ORACLE.md).
